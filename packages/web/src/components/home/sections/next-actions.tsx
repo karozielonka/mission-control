@@ -3,6 +3,7 @@ import { Bug, CheckCircle2, Eye, GitMerge, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { DEFAULT_SENTRY_ENV } from "@/config";
 import { useContextStore } from "@/stores/context-store";
+import { useNow } from "@/lib/use-now";
 import { NextActionRow, type ActionItem } from "../next-action-row";
 import { timeAgo } from "../formatters";
 
@@ -12,6 +13,7 @@ export function NextActions() {
   const pullRequests = useContextStore(({pullRequests}) => pullRequests);
   const reviewRequestedPRs = useContextStore(({reviewRequestedPRs}) => reviewRequestedPRs);
   const sentryIssuesByEnv = useContextStore(({sentryIssuesByEnv}) => sentryIssuesByEnv);
+  const now = useNow();
 
   const nextActions = useMemo<ActionItem[]>(() => {
     const items: ActionItem[] = [];
@@ -27,7 +29,7 @@ export function NextActions() {
         tone: "amber",
         icon: <Eye className="h-4 w-4" />,
         primary: `Review ${pr.author}'s PR`,
-        secondary: `${pr.repo}#${pr.number} · ${pr.title} · ${timeAgo(pr.created_at)}`,
+        secondary: `${pr.repo}#${pr.number} · ${pr.title} · ${timeAgo(pr.created_at, now)}`,
         actionLabel: "Open PR",
         url: pr.url,
       });
@@ -68,7 +70,7 @@ export function NextActions() {
           tone: "red",
           icon: <Bug className="h-4 w-4" />,
           primary: err.title,
-          secondary: `${DEFAULT_SENTRY_ENV} · ${err.count.toLocaleString()}× · last seen ${timeAgo(err.last_seen)}`,
+          secondary: `${DEFAULT_SENTRY_ENV} · ${err.count.toLocaleString()}× · last seen ${timeAgo(err.last_seen, now)}`,
           actionLabel: "Open in Sentry",
           url: err.url,
         });
@@ -76,7 +78,7 @@ export function NextActions() {
     }
 
     return items;
-  }, [reviewRequestedPRs, pullRequests, sentryIssuesByEnv]);
+  }, [reviewRequestedPRs, pullRequests, sentryIssuesByEnv, now]);
 
   return (
     <div

@@ -1,6 +1,7 @@
 import { RefreshCw } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { STALE_REFRESH_MINUTES } from "@/lib/constants";
+import { useNow } from "@/lib/use-now";
 
 interface Props {
   lastRefresh: Date;
@@ -9,7 +10,8 @@ interface Props {
 }
 
 export function StaleIndicator({ lastRefresh, refreshing, onRefresh }: Props) {
-  const minutesAgo = Math.floor((Date.now() - lastRefresh.getTime()) / 60_000);
+  const now = useNow();
+  const minutesAgo = Math.floor((now - lastRefresh.getTime()) / 60_000);
   const isStale = minutesAgo >= STALE_REFRESH_MINUTES;
 
   const fullLabel =

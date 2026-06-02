@@ -17,6 +17,9 @@ interface ContextState {
   fetchPullRequests: (repos: string[]) => Promise<void>;
   fetchReviewRequestedPRs: () => Promise<void>;
   fetchSentryIssues: (environment: string) => Promise<void>;
+  /** Fetch everything in parallel. Used for both initial load and manual refresh
+   *  so the two paths can't drift. */
+  fetchAll: (repos: string[], sentryEnvs: string[]) => Promise<void>;
 }
 
 function describeError(err: unknown): string {
@@ -24,7 +27,7 @@ function describeError(err: unknown): string {
   return String(err);
 }
 
-export const useContextStore = create<ContextState>((set) => {
+export const useContextStore = create<ContextState>((set, get) => {
   const run = async <T,>(
     key: string,
     fn: () => Promise<T>,
@@ -94,5 +97,17 @@ export const useContextStore = create<ContextState>((set) => {
           sentryIssuesByEnv: { ...s.sentryIssuesByEnv, [environment]: issues },
         }),
       ),
+
+    fetchAll: async (repos: string[], sentryEnvs: string[]) => {
+      const s = get();
+      await Promise.all([
+        s.fetchMyLinearIssues(),
+        s.fetchCyclePickupCandidates(),
+        s.fetchUnassignedTestingIssues(),
+        s.fetchPullRequests(repos),
+        s.fetchReviewRequestedPRs(),
+        ...sentryEnvs.map((env) => s.fetchSentryIssues(env)),
+      ]);
+    },
   };
 });

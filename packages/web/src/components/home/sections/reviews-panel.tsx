@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { ExternalLink, Eye, GitBranch, GitPullRequest } from "lucide-react";
+import type { LinearIssue, PullRequest, ReviewRequestedPR } from "@/lib/api";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { useContextStore } from "@/stores/context-store";
@@ -8,6 +9,7 @@ import { AgePill, IssueTypeBadge, WaitingBadge } from "../badges";
 import { branchMatchesIssueKey } from "../formatters";
 import { getPRIcon } from "../pr-display";
 import { IssueRowSkeleton, PRRowSkeleton } from "../skeletons";
+import { ErrorNote } from "../error-note";
 
 const isReviewStatus = (s: string) => /review/i.test(s);
 
@@ -16,6 +18,7 @@ export function ReviewsPanel() {
   const reviewRequestedPRs = useContextStore(({reviewRequestedPRs}) => reviewRequestedPRs);
   const pullRequests = useContextStore(({pullRequests}) => pullRequests);
   const loading = useContextStore(({loading}) => loading);
+  const errors = useContextStore(({errors}) => errors);
 
   const codeReviewTickets = useMemo(
     () => myLinearIssues.filter((t) => isReviewStatus(t.status)),
@@ -64,11 +67,13 @@ export function ReviewsPanel() {
         <MineInCodeReview
           tickets={codeReviewTickets}
           loading={!!loading.myLinearIssues}
+          error={errors.myLinearIssues}
           pullRequests={pullRequests}
         />
         <AwaitingMyReview
           prs={sortedReviewRequestedPRs}
           loading={!!loading.reviewRequestedPRs}
+          error={errors.reviewRequestedPRs}
         />
       </div>
     </div>
@@ -78,11 +83,13 @@ export function ReviewsPanel() {
 function MineInCodeReview({
   tickets,
   loading,
+  error,
   pullRequests,
 }: {
-  tickets: ReturnType<typeof useContextStore.getState>["myLinearIssues"];
+  tickets: LinearIssue[];
   loading: boolean;
-  pullRequests: ReturnType<typeof useContextStore.getState>["pullRequests"];
+  error: string | null;
+  pullRequests: PullRequest[];
 }) {
   return (
     <>
@@ -105,6 +112,8 @@ function MineInCodeReview({
               <IssueRowSkeleton key={i} />
             ))}
           </>
+        ) : error ? (
+          <ErrorNote message={error} />
         ) : tickets.length === 0 ? (
           <p className="text-sm text-muted-foreground px-5 py-3">No tickets in code review</p>
         ) : (
@@ -165,9 +174,11 @@ function MineInCodeReview({
 function AwaitingMyReview({
   prs,
   loading,
+  error,
 }: {
-  prs: ReturnType<typeof useContextStore.getState>["reviewRequestedPRs"];
+  prs: ReviewRequestedPR[];
   loading: boolean;
+  error: string | null;
 }) {
   return (
     <>
@@ -190,6 +201,8 @@ function AwaitingMyReview({
               <PRRowSkeleton key={i} />
             ))}
           </>
+        ) : error ? (
+          <ErrorNote message={error} />
         ) : prs.length === 0 ? (
           <p className="text-sm text-muted-foreground px-5 py-3">No PRs awaiting your review</p>
         ) : (

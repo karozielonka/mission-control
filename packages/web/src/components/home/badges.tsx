@@ -3,10 +3,12 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { AGE_STALE_HOURS, AGE_WARM_HOURS } from "@/lib/constants";
 import { issueTypeStyle } from "@/lib/styles";
+import { useNow } from "@/lib/use-now";
 import { staleness, timeAgo } from "./formatters";
 
 export function AgePill({ since }: { since: string }) {
-  const s = staleness(since);
+  const now = useNow();
+  const s = staleness(since, now);
   return (
     <span
       className={cn(
@@ -22,8 +24,9 @@ export function AgePill({ since }: { since: string }) {
 }
 
 export function WaitingBadge({ since }: { since: string }) {
-  const hours = (Date.now() - new Date(since).getTime()) / 3_600_000;
-  const label = timeAgo(since);
+  const now = useNow();
+  const hours = (now - new Date(since).getTime()) / 3_600_000;
+  const label = timeAgo(since, now);
   const [style, title] =
     hours > AGE_STALE_HOURS
       ? ["bg-red-100 text-red-700 border-red-200", "Waiting over 3 days"]

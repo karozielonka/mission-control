@@ -15,8 +15,11 @@ export interface Staleness {
   title: string;
 }
 
-export function timeAgo(dateStr: string): string {
-  const diff = Date.now() - new Date(dateStr).getTime();
+// `now` is passed in (see useNow) so these helpers stay pure — given the same
+// inputs they always return the same output, and they re-run when the shared
+// ticker advances rather than calling Date.now() during render.
+export function timeAgo(dateStr: string, now: number): string {
+  const diff = now - new Date(dateStr).getTime();
   const m = Math.floor(diff / 60000);
   if (m < 0) return "just now";
   if (m < 60) return `${m}m`;
@@ -25,9 +28,9 @@ export function timeAgo(dateStr: string): string {
   return `${Math.floor(h / 24)}d`;
 }
 
-export function staleness(dateStr: string): Staleness {
-  const hrs = (Date.now() - new Date(dateStr).getTime()) / 3_600_000;
-  const label = timeAgo(dateStr);
+export function staleness(dateStr: string, now: number): Staleness {
+  const hrs = (now - new Date(dateStr).getTime()) / 3_600_000;
+  const label = timeAgo(dateStr, now);
   if (hrs > AGE_STALE_HOURS) {
     return {
       tier: "stale",
@@ -52,17 +55,20 @@ export function staleness(dateStr: string): Staleness {
   };
 }
 
-export function sentryScore(issue: { count: number; last_seen: string }): number {
-  const hrs = (Date.now() - new Date(issue.last_seen).getTime()) / 3_600_000;
+export function sentryScore(issue: { count: number; last_seen: string }, now: number): number {
+  const hrs = (now - new Date(issue.last_seen).getTime()) / 3_600_000;
   const r = hrs < 1 ? 1.0 : hrs < 6 ? 0.7 : hrs < 24 ? 0.4 : 0.1;
   return issue.count * r;
 }
 
-export function sentryTier(issue: { count: number; last_seen: string }): {
+export function sentryTier(
+  issue: { count: number; last_seen: string },
+  now: number,
+): {
   titleClass: string;
   pill: string;
 } {
-  const score = sentryScore(issue);
+  const score = sentryScore(issue, now);
   if (score > SENTRY_SCORE_HIGH) {
     return {
       titleClass: "text-red-200 font-medium",
