@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { useContextStore } from "@/stores/context-store";
 import { DEFAULT_SENTRY_ENV, REPOS, SENTRY_ENVS, type SentryEnv } from "@/config";
-import { REFRESH_INTERVAL_MS } from "@/lib/constants";
 import { Header } from "./sections/header";
 import { NextActions } from "./sections/next-actions";
 import { SuggestionsPanel } from "./sections/suggestions-panel";
@@ -10,26 +9,20 @@ import { PullRequestsPanel } from "./sections/pull-requests-panel";
 import { ReviewsPanel } from "./sections/reviews-panel";
 
 export function HomeView() {
-  const fetchMyLinearIssues = useContextStore(({fetchMyLinearIssues}) => fetchMyLinearIssues);
-  const fetchCyclePickupCandidates = useContextStore(({fetchCyclePickupCandidates}) => fetchCyclePickupCandidates);
-  const fetchUnassignedTestingIssues = useContextStore(({fetchUnassignedTestingIssues}) => fetchUnassignedTestingIssues);
-  const fetchPullRequests = useContextStore(({fetchPullRequests}) => fetchPullRequests);
-  const fetchReviewRequestedPRs = useContextStore(({fetchReviewRequestedPRs}) => fetchReviewRequestedPRs);
+  const fetchAll = useContextStore(({fetchAll}) => fetchAll);
   const fetchSentryIssues = useContextStore(({fetchSentryIssues}) => fetchSentryIssues);
   const sentryIssuesByEnv = useContextStore(({sentryIssuesByEnv}) => sentryIssuesByEnv);
   const loading = useContextStore(({loading}) => loading);
 
   const [sentryEnv, setSentryEnv] = useState<SentryEnv>(DEFAULT_SENTRY_ENV);
-  const [lastRefresh, setLastRefresh] = useState<Date>(new Date());
+  const [lastRefresh, setLastRefresh] = useState<Date>(() => new Date());
   const [refreshing, setRefreshing] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
-  const [, setTick] = useState(0);
 
-  // Force re-render every minute so timeAgo / staleness pills keep updating
+  // Initial load — only the default Sentry env; others lazy-load on switch below.
   useEffect(() => {
-    const interval = setInterval(() => setTick((t) => t + 1), REFRESH_INTERVAL_MS);
-    return () => clearInterval(interval);
-  }, []);
+    fetchAll([...REPOS], [DEFAULT_SENTRY_ENV]);
+  }, [fetchAll]);
 
   // Lazy-load sentry data when the user switches environments
   useEffect(() => {
@@ -40,24 +33,10 @@ export function HomeView() {
 
   const handleRefresh = useCallback(async () => {
     setRefreshing(true);
-    await Promise.all([
-      fetchMyLinearIssues(),
-      fetchCyclePickupCandidates(),
-      fetchUnassignedTestingIssues(),
-      fetchPullRequests([...REPOS]),
-      fetchReviewRequestedPRs(),
-      ...SENTRY_ENVS.map((env) => fetchSentryIssues(env)),
-    ]);
+    await fetchAll([...REPOS], [...SENTRY_ENVS]);
     setLastRefresh(new Date());
     setRefreshing(false);
-  }, [
-    fetchMyLinearIssues,
-    fetchCyclePickupCandidates,
-    fetchUnassignedTestingIssues,
-    fetchPullRequests,
-    fetchReviewRequestedPRs,
-    fetchSentryIssues,
-  ]);
+  }, [fetchAll]);
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden h-screen bg-background text-foreground">

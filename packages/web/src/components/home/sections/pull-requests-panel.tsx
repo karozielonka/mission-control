@@ -5,10 +5,12 @@ import { cn } from "@/lib/utils";
 import { useContextStore } from "@/stores/context-store";
 import { PRGroup } from "../pr-row";
 import { PRRowSkeleton } from "../skeletons";
+import { ErrorNote } from "../error-note";
 
 export function PullRequestsPanel() {
   const pullRequests = useContextStore(({pullRequests}) => pullRequests);
   const loading = useContextStore(({loading}) => loading);
+  const error = useContextStore(({errors}) => errors.pullRequests);
 
   const groups = useMemo(() => {
     const sorted = [...pullRequests].sort(
@@ -67,6 +69,8 @@ export function PullRequestsPanel() {
               <PRRowSkeleton key={i} />
             ))}
           </div>
+        ) : error ? (
+          <ErrorNote message={error} />
         ) : pullRequests.length === 0 ? (
           <p className="text-sm text-muted-foreground p-5">No open pull requests</p>
         ) : (

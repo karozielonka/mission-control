@@ -7,6 +7,7 @@ const isReviewStatus = (s: string) => /review/i.test(s);
 export function NowWorkingOn() {
   const myLinearIssues = useContextStore(({myLinearIssues}) => myLinearIssues);
   const loading = useContextStore(({loading}) => loading);
+  const error = useContextStore(({errors}) => errors.myLinearIssues);
 
   const inProgressTickets = myLinearIssues.filter(
     ({status}) => status.toLowerCase() === "in progress" && !isReviewStatus(status),
@@ -23,6 +24,8 @@ export function NowWorkingOn() {
       <div className="flex items-center gap-2 overflow-x-auto flex-1 scrollbar-thin">
         {loading.myLinearIssues ? (
           <Bone className="h-5 w-48" />
+        ) : error ? (
+          <span className="text-[11px] text-red-300 italic">Couldn't load Linear issues</span>
         ) : inProgressTickets.length === 0 ? (
           <span className="text-[11px] text-muted-foreground italic">Nothing in progress</span>
         ) : (

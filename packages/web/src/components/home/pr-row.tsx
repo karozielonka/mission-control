@@ -1,6 +1,7 @@
 import { ExternalLink } from "lucide-react";
 import type { PullRequest } from "@/lib/api";
 import { Badge } from "@/components/ui/badge";
+import { useNow } from "@/lib/use-now";
 import { AgePill } from "./badges";
 import { staleness } from "./formatters";
 import { getMergeLabel, getPRIcon } from "./pr-display";
@@ -37,7 +38,8 @@ export function PRGroup({
 }
 
 export function PRRow({ pr }: { pr: PullRequest }) {
-  const s = staleness(pr.created_at);
+  const now = useNow();
+  const s = staleness(pr.created_at, now);
   return (
     <div className="flex items-center gap-3 px-5 py-3 hover:bg-accent/20 transition-colors group">
       {getPRIcon(pr.state)}

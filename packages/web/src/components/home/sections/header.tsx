@@ -7,10 +7,12 @@ import { SENTRY_ENVS, type SentryEnv } from "@/config";
 import { TESTING_EXCLUDED_PROJECTS } from "@/lib/constants";
 import { levelColor } from "@/lib/styles";
 import { useContextStore } from "@/stores/context-store";
+import { useNow } from "@/lib/use-now";
 import { HealthPill } from "../health-pill";
 import { StaleIndicator } from "../stale-indicator";
 import { IssueRowSkeleton, SentryRowSkeleton } from "../skeletons";
 import { IssueTypeBadge } from "../badges";
+import { ErrorNote } from "../error-note";
 import { sentryScore, sentryTier, timeAgo } from "../formatters";
 
 interface Props {
@@ -35,9 +37,12 @@ export function Header({
   const cyclePickupCandidates = useContextStore(({cyclePickupCandidates}) => cyclePickupCandidates);
   const loading = useContextStore(({loading}) => loading);
 
+  const errors = useContextStore(({errors}) => errors);
   const sentryIssues = sentryIssuesByEnv[sentryEnv] ?? [];
   const loadingSentry = loading[`sentryIssues_${sentryEnv}`];
+  const sentryError = errors[`sentryIssues_${sentryEnv}`];
 
+  const now = useNow();
   const [theme, setTheme] = useState(getTheme);
   const [openPill, setOpenPill] = useState<"sentry" | "testing" | null>(null);
 
@@ -52,7 +57,7 @@ export function Header({
 
   const handleToggleTheme = () => setTheme(toggleTheme());
 
-  const sortedSentryIssues = [...sentryIssues].sort((a, b) => sentryScore(b) - sentryScore(a));
+  const sortedSentryIssues = [...sentryIssues].sort((a, b) => sentryScore(b, now) - sentryScore(a, now));
 
   // Hide issues from excluded Linear projects (key prefix before the dash, e.g. "DD-143").
   const visibleTestingIssues = unassignedTestingIssues.filter(
@@ -110,11 +115,13 @@ export function Header({
                   <SentryRowSkeleton key={i} />
                 ))}
               </>
+            ) : sentryError ? (
+              <ErrorNote message={sentryError} />
             ) : sentryIssues.length === 0 ? (
               <p className="text-sm text-muted-foreground p-5">No errors in {sentryEnv}</p>
             ) : (
               sortedSentryIssues.slice(0, 8).map((issue) => {
-                const t = sentryTier(issue);
+                const t = sentryTier(issue, now);
                 return (
                   <div
                     key={issue.id}
@@ -140,7 +147,7 @@ export function Header({
                           {issue.count.toLocaleString()}×
                         </span>
                         <span className="text-[11px] text-muted-foreground">
-                          {timeAgo(issue.last_seen)}
+                          {timeAgo(issue.last_seen, now)}
                         </span>
                       </div>
                     </div>
@@ -175,6 +182,8 @@ export function Header({
                   <IssueRowSkeleton key={i} />
                 ))}
               </>
+            ) : errors.unassignedTestingIssues ? (
+              <ErrorNote message={errors.unassignedTestingIssues} />
             ) : visibleTestingIssues.length === 0 ? (
               <p className="text-sm text-muted-foreground p-5">No unassigned tickets in testing</p>
             ) : (
