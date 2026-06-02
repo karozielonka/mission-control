@@ -44,15 +44,12 @@ const ISSUE_FIELDS = `
   id
   identifier
   title
-  description
   url
   estimate
-  priority
   priorityLabel
-  state { name type }
-  assignee { id name email }
-  labels { nodes { name } }
-  children { nodes { id identifier title state { name type } } }
+  state { name }
+  assignee { id name }
+  children { nodes { id identifier title state { name } } }
 `;
 
 export async function getMyIssues(): Promise<LinearIssue[]> {

@@ -22,6 +22,7 @@ export interface GitHubPullRequest {
   };
   draft: boolean;
   mergeable: boolean | null;
+  mergeable_state?: string;
   additions: number;
   deletions: number;
   changed_files: number;

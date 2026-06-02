@@ -4,7 +4,7 @@ import * as linear from '../../integrations/linear.js';
 import type { LinearIssue as UpstreamLinearIssue } from '../../integrations/types/linear.js';
 import { runIntegration } from './shared.js';
 
-const isReviewStatus = (status: string): boolean => /review/i.test(status);
+const isReviewStatus = (status: string): boolean => /\breview\b/i.test(status);
 
 function mapLinearIssue(issue: UpstreamLinearIssue): LinearIssue {
   const subtasks: LinearSubtask[] = issue.children.nodes.map((child) => ({

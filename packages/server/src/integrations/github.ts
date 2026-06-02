@@ -31,8 +31,16 @@ async function githubFetch<T>(path: string, options: RequestInit = {}): Promise<
   return response.json() as Promise<T>;
 }
 
-async function getCurrentUser(): Promise<GitHubUser> {
-  return githubFetch<GitHubUser>('/user');
+let currentUserPromise: Promise<GitHubUser> | null = null;
+
+function getCurrentUser(): Promise<GitHubUser> {
+  if (!currentUserPromise) {
+    currentUserPromise = githubFetch<GitHubUser>('/user').catch((err) => {
+      currentUserPromise = null;
+      throw err;
+    });
+  }
+  return currentUserPromise;
 }
 
 export async function getMyPullRequests(repo: string): Promise<GitHubPullRequest[]> {

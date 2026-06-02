@@ -9,9 +9,11 @@ import type {
 } from '@dashboard/shared';
 import * as github from '../../integrations/github.js';
 import type { GitHubPullRequest } from '../../integrations/types/github.js';
-import { runIntegration } from './shared.js';
+import { mapWithConcurrency, runIntegration } from './shared.js';
 
 const REPO_RE = /^[a-zA-Z0-9._-]+\/[a-zA-Z0-9._-]+$/;
+
+const ENRICH_CONCURRENCY = 6;
 
 const FAILURE_CHECK_CONCLUSIONS = new Set([
   'failure',
@@ -94,8 +96,7 @@ async function enrichPullRequest(repo: string, pr: GitHubPullRequest): Promise<P
     const detail = await github.getPullRequest(repo, pr.number);
     additions = detail.additions ?? 0;
     deletions = detail.deletions ?? 0;
-    mergeable_state =
-      (((detail as unknown as Record<string, unknown>).mergeable_state as MergeableState) ?? '');
+    mergeable_state = (detail.mergeable_state as MergeableState) ?? '';
   } catch {
     // fall back to defaults
   }
@@ -142,7 +143,7 @@ export const githubRoutes: FastifyPluginCallback = (fastify, _opts, done) => {
       logContext: { repo },
       fn: async () => {
         const prs = await github.getMyPullRequests(repo);
-        return Promise.all(prs.map((pr) => enrichPullRequest(repo, pr)));
+        return mapWithConcurrency(prs, ENRICH_CONCURRENCY, (pr) => enrichPullRequest(repo, pr));
       },
     });
   });
