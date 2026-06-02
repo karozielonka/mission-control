@@ -1,0 +1,146 @@
+@import "tailwindcss";
+
+@theme {
+  --radius: 0.625rem;
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+
+  --color-background: var(--bg);
+  --color-foreground: var(--fg);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-fg);
+  --color-popover: var(--card);
+  --color-popover-foreground: var(--card-fg);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-fg);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-fg);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-fg);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-fg);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-fg);
+  --color-border: var(--border-color);
+  --color-input: var(--input-color);
+  --color-ring: var(--ring-color);
+  --color-sidebar-background: var(--sidebar-bg);
+  --color-sidebar-foreground: var(--sidebar-fg);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-fg);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-fg);
+  --color-sidebar-border: var(--sidebar-border);
+}
+
+/* Dark theme (default) — Linear-ish: indigo primary on cool neutrals */
+:root {
+  --bg: oklch(0.20 0.01 260);
+  --fg: oklch(0.97 0.005 260);
+  --card: oklch(0.25 0.01 260);
+  --card-fg: oklch(0.97 0.005 260);
+  --primary: oklch(0.62 0.20 264);
+  --primary-fg: oklch(0.98 0.005 264);
+  --secondary: oklch(0.32 0.01 260);
+  --secondary-fg: oklch(0.92 0.005 260);
+  --muted: oklch(0.32 0.01 260);
+  --muted-fg: oklch(0.70 0.015 260);
+  --accent: oklch(0.32 0.01 260);
+  --accent-fg: oklch(0.92 0.005 260);
+  --destructive: oklch(0.704 0.191 22.216);
+  --destructive-fg: oklch(0.98 0.005 260);
+  --border-color: oklch(0.32 0.01 260);
+  --input-color: oklch(0.32 0.01 260);
+  --ring-color: oklch(0.62 0.20 264);
+  --sidebar-bg: oklch(0.18 0.01 260);
+  --sidebar-fg: oklch(0.70 0.015 260);
+  --sidebar-primary: oklch(0.62 0.20 264);
+  --sidebar-primary-fg: oklch(0.98 0.005 264);
+  --sidebar-accent: oklch(0.28 0.01 260);
+  --sidebar-accent-fg: oklch(0.92 0.005 260);
+  --sidebar-border: oklch(0.32 0.01 260);
+  color-scheme: dark;
+}
+
+/* Light theme — Linear-ish */
+:root[data-theme="light"] {
+  --bg: oklch(0.985 0.003 260);
+  --fg: oklch(0.18 0.01 260);
+  --card: oklch(1 0 0);
+  --card-fg: oklch(0.18 0.01 260);
+  --primary: oklch(0.55 0.20 264);
+  --primary-fg: oklch(0.985 0.003 264);
+  --secondary: oklch(0.94 0.005 260);
+  --secondary-fg: oklch(0.28 0.01 260);
+  --muted: oklch(0.94 0.005 260);
+  --muted-fg: oklch(0.46 0.015 260);
+  --accent: oklch(0.94 0.005 260);
+  --accent-fg: oklch(0.28 0.01 260);
+  --destructive: oklch(0.577 0.245 27.325);
+  --destructive-fg: oklch(0.985 0.003 260);
+  --border-color: oklch(0.88 0.005 260);
+  --input-color: oklch(0.88 0.005 260);
+  --ring-color: oklch(0.55 0.20 264);
+  --sidebar-bg: oklch(0.97 0.005 260);
+  --sidebar-fg: oklch(0.46 0.015 260);
+  --sidebar-primary: oklch(0.55 0.20 264);
+  --sidebar-primary-fg: oklch(0.985 0.003 264);
+  --sidebar-accent: oklch(0.94 0.005 260);
+  --sidebar-accent-fg: oklch(0.28 0.01 260);
+  --sidebar-border: oklch(0.88 0.005 260);
+  color-scheme: light;
+}
+
+/* Soften intense colors for dark mode */
+:root:not([data-theme="light"]) .text-green-400 { color: #86efac; }
+:root:not([data-theme="light"]) .text-green-600 { color: #4ade80; }
+:root:not([data-theme="light"]) .text-green-700 { color: #4ade80; }
+:root:not([data-theme="light"]) .text-yellow-400 { color: #fde68a; }
+:root:not([data-theme="light"]) .text-amber-400 { color: #fde68a; }
+:root:not([data-theme="light"]) .text-amber-500 { color: #fcd34d; }
+:root:not([data-theme="light"]) .text-amber-600 { color: #fbbf24; }
+:root:not([data-theme="light"]) .text-amber-700 { color: #fbbf24; }
+:root:not([data-theme="light"]) .text-orange-400 { color: #fdba74; }
+
+/* Fix light amber backgrounds (bg-amber-100) in dark mode */
+:root:not([data-theme="light"]) .bg-amber-100 { background-color: rgb(120 53 15 / 0.35); }
+:root:not([data-theme="light"]) .hover\:bg-amber-200:hover { background-color: rgb(120 53 15 / 0.55); }
+:root:not([data-theme="light"]) .border-amber-300 { border-color: rgb(252 211 77 / 0.3); }
+
+/* Fix light green backgrounds (bg-green-100) in dark mode */
+:root:not([data-theme="light"]) .bg-green-100 { background-color: rgb(20 83 45 / 0.35); }
+:root:not([data-theme="light"]) .border-green-300 { border-color: rgb(134 239 172 / 0.3); }
+
+/* Darken status colors for light mode readability */
+:root[data-theme="light"] .text-green-400 { color: #16a34a; }
+:root[data-theme="light"] .text-green-500 { color: #16a34a; }
+:root[data-theme="light"] .text-yellow-400 { color: #ca8a04; }
+:root[data-theme="light"] .text-red-400 { color: #dc2626; }
+:root[data-theme="light"] .text-purple-400 { color: #9333ea; }
+:root[data-theme="light"] .text-blue-400 { color: #2563eb; }
+:root[data-theme="light"] .text-orange-400 { color: #ea580c; }
+:root[data-theme="light"] .text-zinc-400 { color: #71717a; }
+
+/* 300-range text shades are tuned for dark mode — bump for light */
+:root[data-theme="light"] .text-blue-300 { color: #1d4ed8; }
+:root[data-theme="light"] .text-amber-300 { color: #b45309; }
+:root[data-theme="light"] .text-red-300 { color: #b91c1c; }
+
+/* Tinted /15 backgrounds + /30 borders are barely visible on white */
+:root[data-theme="light"] .bg-amber-500\/15 { background-color: rgb(252 211 77 / 0.45); }
+:root[data-theme="light"] .border-amber-500\/30 { border-color: rgb(217 119 6 / 0.55); }
+:root[data-theme="light"] .bg-red-500\/15 { background-color: rgb(239 68 68 / 0.30); }
+:root[data-theme="light"] .border-red-500\/30 { border-color: rgb(220 38 38 / 0.55); }
+
+:root[data-theme="light"] .bg-green-500 { background-color: #16a34a; }
+:root[data-theme="light"] .bg-yellow-500 { background-color: #ca8a04; }
+:root[data-theme="light"] .bg-zinc-500 { background-color: #71717a; }
+
+body {
+  margin: 0;
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
