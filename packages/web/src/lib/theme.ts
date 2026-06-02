@@ -1,6 +1,6 @@
 type Theme = "dark" | "light";
 
-const STORAGE_KEY = "claude-dashboard-theme";
+const STORAGE_KEY = "mission-control-theme";
 const DEFAULT_THEME: Theme = "dark";
 
 function safeGetItem(key: string): string | null {

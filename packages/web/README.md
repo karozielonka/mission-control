@@ -1,6 +1,6 @@
 # @dashboard/web
 
-React 19 + Vite frontend for Claude Dashboard. See the [root README](../../README.md) for setup and prerequisites.
+React 19 + Vite frontend for Mission Control. See the [root README](../../README.md) for setup and prerequisites.
 
 ## Stack
 

@@ -1,4 +1,4 @@
-# Claude Dashboard
+# Mission Control
 
 A monorepo dashboard that aggregates context from GitHub, Linear, and Sentry and exposes it to Claude agents running against a local platform repo.
 
@@ -17,8 +17,8 @@ A monorepo dashboard that aggregates context from GitHub, Linear, and Sentry and
 ## Setup
 
 ```bash
-git clone <repo-url> claude-dashboard
-cd claude-dashboard
+git clone <repo-url> mission-control
+cd mission-control
 cp .env.example .env
 # fill in the values in .env (see below)
 pnpm install

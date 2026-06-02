@@ -1,5 +1,5 @@
 {
-  "name": "claude-dashboard",
+  "name": "mission-control",
   "private": true,
   "packageManager": "pnpm@9.0.0",
   "engines": {
