@@ -1,2 +1,18 @@
 packages:
   - "packages/*"
+
+# Link workspace packages declared with "*" / version ranges (not just the
+# workspace: protocol). Replaces the manual --config.link-workspace-packages
+# flag that previously had to be passed on every install.
+linkWorkspacePackages: true
+
+# Supply-chain hardening (https://pnpm.io/supply-chain-security)
+# Refuse to install a package version published less than this many minutes
+# ago, so a freshly compromised release can't be pulled in immediately.
+# 4320 = 3 days. Tune down if it ever blocks an urgent security patch.
+minimumReleaseAge: 4320
+
+# pnpm v10 blocks dependency lifecycle scripts (postinstall, etc.) by default.
+# Only the packages listed here are allowed to run build scripts.
+# Populated from the "Ignored build scripts" warning during install.
+onlyBuiltDependencies: []

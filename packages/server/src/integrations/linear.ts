@@ -52,6 +52,20 @@ const ISSUE_FIELDS = `
   children { nodes { id identifier title state { name } } }
 `;
 
+let viewerIdPromise: Promise<string> | null = null;
+
+export function getViewerId(): Promise<string> {
+  if (!viewerIdPromise) {
+    viewerIdPromise = linearFetch<{ viewer: { id: string } }>('query { viewer { id } }')
+      .then((data) => data.viewer.id)
+      .catch((err) => {
+        viewerIdPromise = null;
+        throw err;
+      });
+  }
+  return viewerIdPromise;
+}
+
 export async function getMyIssues(): Promise<LinearIssue[]> {
   const query = `
     query MyIssues {
@@ -90,12 +104,15 @@ export async function getUnassignedTestingIssues(): Promise<LinearIssue[]> {
   return data.issues.nodes;
 }
 
+const PICKUP_TEAMS = ['Rafiki', 'Engineering'];
+
 export async function getCyclePickupCandidates(): Promise<LinearIssue[]> {
   const query = `
     query CyclePickupCandidates {
       issues(
         filter: {
           cycle: { isActive: { eq: true } },
+          team: { name: { in: ${JSON.stringify(PICKUP_TEAMS)} } },
           assignee: { null: true },
           state: { type: { in: ["triage", "backlog", "unstarted"] } }
         }
@@ -137,6 +154,9 @@ export async function getIssueHistory(issueId: string): Promise<LinearHistoryEnt
             createdAt
             fromState { name }
             toState { name }
+            actor { id }
+            fromAssignee { id }
+            toAssignee { id }
           }
         }
       }

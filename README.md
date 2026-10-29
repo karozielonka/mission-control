@@ -87,7 +87,7 @@ pnpm dev
 ### Prerequisites
 
 - **Node.js 20+** (see `.nvmrc`)
-- **pnpm 9+** — `npm install -g pnpm`
+- **pnpm 10+** — pinned via the `packageManager` field and auto-installed by [corepack](https://nodejs.org/api/corepack.html) (`corepack enable`); no global install needed
 - A local checkout of the platform repo your agents will operate on
 
 ## Environment variables
@@ -118,7 +118,16 @@ Run these from the **repo root** (not from inside `packages/` or a sub-package).
 
 - **`PLATFORM_DIR: (not set)`** in server logs — fill in `PLATFORM_DIR` in `.env` and restart.
 - **CORS errors in browser** — the server only allows `localhost` / `127.0.0.1` origins; make sure the web app is on one of those.
-- **Stale lockfile** — delete `node_modules` and `pnpm-lock.yaml`, then re-run `pnpm install`.
+- **Stale `node_modules`** — delete `node_modules` and re-run `pnpm install`. Keep `pnpm-lock.yaml`; deleting it forces a full re-resolve that the supply-chain age gate (below) can block.
+- **A new dependency is rejected as too recent** (`ERR_PNPM_NO_MATURE_MATCHING_VERSION`) — that's the `minimumReleaseAge` guard refusing a version published within the last 3 days (see [Supply-chain security](#supply-chain-security)). Wait it out, or add the package to `minimumReleaseAgeExclude` in `pnpm-workspace.yaml`.
+
+## Supply-chain security
+
+Dependency installs are hardened per [pnpm's supply-chain guidance](https://pnpm.io/supply-chain-security), configured in `pnpm-workspace.yaml`:
+
+- **Pinned lockfile** — `pnpm-lock.yaml` is committed; use `pnpm install --frozen-lockfile` in CI.
+- **`minimumReleaseAge: 4320`** — refuses package versions published less than 3 days ago, so a freshly compromised release can't be pulled in immediately.
+- **`onlyBuiltDependencies`** — pnpm blocks dependency lifecycle/build scripts by default; only packages on this allowlist may run them (currently empty — no dependency needs one). If a future dep needs a build script, pnpm prints an "Ignored build scripts" warning naming it; add it there.
 
 <div align="center">
 <br />
