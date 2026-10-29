@@ -36,4 +36,7 @@ export interface LinearHistoryEntry {
   createdAt: string;
   fromState: { name: string } | null;
   toState: { name: string } | null;
+  actor?: { id: string } | null;
+  fromAssignee?: { id: string } | null;
+  toAssignee?: { id: string } | null;
 }

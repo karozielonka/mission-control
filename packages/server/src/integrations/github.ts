@@ -33,7 +33,7 @@ async function githubFetch<T>(path: string, options: RequestInit = {}): Promise<
 
 let currentUserPromise: Promise<GitHubUser> | null = null;
 
-function getCurrentUser(): Promise<GitHubUser> {
+export function getCurrentUser(): Promise<GitHubUser> {
   if (!currentUserPromise) {
     currentUserPromise = githubFetch<GitHubUser>('/user').catch((err) => {
       currentUserPromise = null;
