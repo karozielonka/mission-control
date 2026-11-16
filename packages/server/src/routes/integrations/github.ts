@@ -125,6 +125,11 @@ async function enrichPullRequest(repo: string, pr: GitHubPullRequest): Promise<P
   };
 }
 
+export async function loadMyPullRequests(repo: string): Promise<PullRequest[]> {
+  const prs = await github.getMyPullRequests(repo);
+  return mapWithConcurrency(prs, ENRICH_CONCURRENCY, (pr) => enrichPullRequest(repo, pr));
+}
+
 export const githubRoutes: FastifyPluginCallback = (fastify, _opts, done) => {
   fastify.get('/api/integrations/github/pulls', async (request, reply) => {
     const { repo } = request.query as { repo?: string };
@@ -141,10 +146,7 @@ export const githubRoutes: FastifyPluginCallback = (fastify, _opts, done) => {
       configured: github.isGitHubConfigured(),
       notConfiguredValue: [],
       logContext: { repo },
-      fn: async () => {
-        const prs = await github.getMyPullRequests(repo);
-        return mapWithConcurrency(prs, ENRICH_CONCURRENCY, (pr) => enrichPullRequest(repo, pr));
-      },
+      fn: () => loadMyPullRequests(repo),
     });
   });
 

@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import type { LinearIssue, PullRequest, ReviewRequestedPR, SentryIssue } from "@/lib/api";
+import type { LinearIssue, PrAlert, PullRequest, ReviewRequestedPR, SentryIssue } from "@/lib/api";
 import * as api from "@/lib/api";
 
 interface ContextState {
@@ -9,8 +9,11 @@ interface ContextState {
   pullRequests: PullRequest[];
   reviewRequestedPRs: ReviewRequestedPR[];
   sentryIssuesByEnv: Record<string, SentryIssue[]>;
+  alerts: PrAlert[];
   loading: Record<string, boolean>;
   errors: Record<string, string | null>;
+  setAlerts: (alerts: PrAlert[]) => void;
+  dismissAlert: (id: string) => void;
   fetchMyLinearIssues: () => Promise<void>;
   fetchCyclePickupCandidates: () => Promise<void>;
   fetchUnassignedTestingIssues: () => Promise<void>;
@@ -59,8 +62,12 @@ export const useContextStore = create<ContextState>((set, get) => {
     pullRequests: [],
     reviewRequestedPRs: [],
     sentryIssuesByEnv: {},
+    alerts: [],
     loading: {},
     errors: {},
+
+    setAlerts: (alerts) => set({ alerts }),
+    dismissAlert: (id) => set((s) => ({ alerts: s.alerts.filter((a) => a.id !== id) })),
 
     fetchMyLinearIssues: () =>
       run("myLinearIssues", api.getMyLinearIssues, (_, myLinearIssues) => ({ myLinearIssues })),

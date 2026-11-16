@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
 import { useContextStore } from "@/stores/context-store";
-import { DEFAULT_SENTRY_ENV, REPOS, SENTRY_ENVS, type SentryEnv } from "@/config";
+import { WATCHED_REPOS } from "@dashboard/shared";
+import { DEFAULT_SENTRY_ENV, SENTRY_ENVS, type SentryEnv } from "@/config";
 import { Header } from "./sections/header";
+import { LiveAlerts } from "./sections/live-alerts";
 import { NextActions } from "./sections/next-actions";
 import { SuggestionsPanel } from "./sections/suggestions-panel";
 import { NowWorkingOn } from "./sections/now-working-on";
@@ -21,7 +23,7 @@ export function HomeView() {
 
   // Initial load — only the default Sentry env; others lazy-load on switch below.
   useEffect(() => {
-    fetchAll([...REPOS], [DEFAULT_SENTRY_ENV]);
+    fetchAll([...WATCHED_REPOS], [DEFAULT_SENTRY_ENV]);
   }, [fetchAll]);
 
   // Lazy-load sentry data when the user switches environments
@@ -33,7 +35,7 @@ export function HomeView() {
 
   const handleRefresh = useCallback(async () => {
     setRefreshing(true);
-    await fetchAll([...REPOS], [...SENTRY_ENVS]);
+    await fetchAll([...WATCHED_REPOS], [...SENTRY_ENVS]);
     setLastRefresh(new Date());
     setRefreshing(false);
   }, [fetchAll]);
@@ -49,6 +51,8 @@ export function HomeView() {
           onRefresh={handleRefresh}
           onSuggestNext={() => setShowSuggestions(true)}
         />
+
+        <LiveAlerts />
 
         <NextActions />
 
