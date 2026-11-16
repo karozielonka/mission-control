@@ -43,3 +43,24 @@ export interface ReviewRequestedPR {
   created_at: string;
   updated_at: string;
 }
+
+export const WATCHED_REPOS = ["Vatixltd/platform", "Vatix/employee-safety-mobile"] as const;
+
+export type PrAlertKind =
+  | "ci_passed"
+  | "ci_failed"
+  | "approved"
+  | "changes_requested"
+  | "conflict"
+  | "review_requested";
+
+export interface PrAlert {
+  id: string;
+  kind: PrAlertKind;
+  text: string;
+  url: string;
+  repo: string;
+  number: number;
+  title: string;
+  at: string;
+}

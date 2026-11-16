@@ -1,5 +1,6 @@
 import type {
   LinearIssue,
+  PrAlert,
   PullRequest,
   ReviewRequestedPR,
   SentryIssue,
@@ -12,6 +13,8 @@ export type {
   LinearIssue,
   LinearSubtask,
   MergeableState,
+  PrAlert,
+  PrAlertKind,
   PRState,
   PullRequest,
   ReviewRequestedPR,
@@ -83,4 +86,17 @@ export async function getReviewRequestedPRs(): Promise<ReviewRequestedPR[]> {
 export async function getSentryIssues(environment?: string): Promise<SentryIssue[]> {
   const qs = environment ? `?environment=${encodeURIComponent(environment)}` : "";
   return request<SentryIssue[]>(`/api/integrations/sentry/issues${qs}`);
+}
+
+// --- Live PR alerts ---
+
+export function subscribeToAlerts(handlers: {
+  onRecent: (alerts: PrAlert[]) => void;
+  onAlerts: (alerts: PrAlert[]) => void;
+}): () => void {
+  const source = new EventSource(`${BASE_URL}/api/events`);
+  const parse = (event: MessageEvent<string>) => JSON.parse(event.data) as PrAlert[];
+  source.addEventListener("recent", (e) => handlers.onRecent(parse(e)));
+  source.addEventListener("alerts", (e) => handlers.onAlerts(parse(e)));
+  return () => source.close();
 }

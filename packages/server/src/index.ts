@@ -8,6 +8,8 @@ dotenv.config({ path: path.resolve(__dirname, '..', '..', '..', '.env') });
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
 import { integrationsRoutes } from './routes/integrations/index.js';
+import { eventsRoutes } from './routes/events.js';
+import { startPrWatcher } from './watch/pr-watcher.js';
 
 const PORT = parseInt(process.env.PORT || '4000', 10);
 
@@ -31,6 +33,7 @@ async function main() {
   });
 
   fastify.register(integrationsRoutes);
+  fastify.register(eventsRoutes);
 
   fastify.get('/api/health', async () => ({ status: 'ok', timestamp: new Date().toISOString() }));
 
@@ -38,6 +41,7 @@ async function main() {
     await fastify.listen({ port: PORT, host: '127.0.0.1' });
     console.log(`Dashboard server running on http://localhost:${PORT}`);
     console.log(`PLATFORM_DIR: ${process.env.PLATFORM_DIR || '(not set)'}`);
+    startPrWatcher(fastify.log);
   } catch (err) {
     fastify.log.error(err);
     process.exit(1);
