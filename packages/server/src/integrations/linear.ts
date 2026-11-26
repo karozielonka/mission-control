@@ -91,7 +91,8 @@ export async function getUnassignedTestingIssues(): Promise<LinearIssue[]> {
       issues(
         filter: {
           assignee: { null: true },
-          state: { name: { containsIgnoreCase: "testing" } }
+          state: { name: { containsIgnoreCase: "testing" } },
+          labels: { every: { name: { neqIgnoreCase: "no qa" } } }
         }
         first: 100
       ) {
